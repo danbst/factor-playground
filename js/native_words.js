@@ -6,8 +6,10 @@ var JSFACTOR_NATIVE_WORDS = JSFACTOR_NATIVE_WORDS || function() {
 	var environments = [];
 
 	function getEnvironment() { return environments[environments.length - 1]; }
-  function setStack(stack) { return getEnvironment().setStack(stack); }
+    function setStack(stack) { return getEnvironment().setStack(stack); }
 	function getStack() { return getEnvironment().getStack(); }
+    function setReturnStack(stack) { return getEnvironment().setReturnStack(stack); }
+	function getReturnStack() { return getEnvironment().getReturnStack(); }
 	function getOutput() { return getEnvironment().getOutput(); }
 	
 	function wordDef(word, stack_effect, description) {
@@ -34,11 +36,11 @@ var JSFACTOR_NATIVE_WORDS = JSFACTOR_NATIVE_WORDS || function() {
   }
   
 	var categories = {
-		'shuffle': categoryDef(['dup', 'drop', 'over', 'swap', 'nip'], "Shuffle words change the stack in trivial manners. They copy elements or move their relative places. Learn these first!"),
+		'shuffle': categoryDef(['dup', 'drop', '>r', 'r>', 'over', 'swap', 'nip'], "Shuffle words change the stack in trivial manners. They copy elements or move their relative places. Learn these first!"),
 		'combinator (basic)': categoryDef(['while', 'until', 'if', 'if*', 'when', 'when*'], "Combinators are words that take quotations from stack and call them. These are basic combinatorics for conditional evaluation. While and until are not very idiomatic to Factor, though. Prefer advanced combinators instead."), 
 		'combinator (adv.)': categoryDef(['map', 'each', 'filter', 'keep', 'dip', 'compose', 'curry'], "Combinators that are a bit complex. Used for composing quotations together or with a sequence."),
 		'combinator (cleave)': categoryDef(['cleave', 'bi', '2bi', 'tri', 'bi@', 'bi*'], "Cleave combinators deal with multiplicity of quotations or elements. e.g. They apply different quotations to same object, or one quotation to many objects. Very handy for complex operations."), 
-		'math': categoryDef(['+', '-', '*', '/', '<', '>', '=', 'or', 'and', 'not', 'mod', 'sin', 'cos'], "Logical or arithmetic operations. NOTE: doesn't reflect the true number system of Factor yet!"),
+		'math': categoryDef(['+', '-', '*', '/', '<', '>', '=', 'or', 'and', 'not', 'mod', 'sin', 'cos', 'sqrt', 'pow'], "Logical or arithmetic operations. NOTE: doesn't reflect the true number system of Factor yet!"),
 		'sequence': categoryDef(['<array>', ',', 'at*', '>alist', 'assoc-size', 'reduce'], "Sequence operations for e.g. arrays "+ code("{ 1 2 3 }") + " and association lists " + codeline('H{ { 1 "foo" } { 2 "bar" } }') ),
 		'graph': categoryDef(['line', 'rect', 'color', 'canvas-clear'], "Very limited methods to draw on HTML5 canvas that is shown in the bottom of the screen. WARNING: is in experimental stage and is known to have problems but will be polished later. Turtles? Who knows."),
 		'misc': categoryDef(['clear', 'call', '.', 'get', 'set', 'sleep', 'pressed', 'random'], "Miscellaneous operations, mostly for interacting with the environment.")		
@@ -67,6 +69,8 @@ var JSFACTOR_NATIVE_WORDS = JSFACTOR_NATIVE_WORDS || function() {
 		'filter': wordDef(factor_filter, "( seq pred -- newseq )", "Calls 'pred' quote on each element on seq. Each element that yields true will be added into the result sequence (preserving order)."),    
 		'cleave': wordDef(factor_cleave, "( x seq-of-quot -- )", "Applies each quot in the sequence to x"),
 		'dup': wordDef(factor_dup, "( x -- x x )" , "Duplicates element."),
+		'>r': wordDef(factor_toreturn, "( x y . -- x . y )" , "Dig deeper into stack."),
+		'r>': wordDef(factor_fromreturn, "( x . y -- x y . )" , "Undo >r. Must not be at top of stack."),
 		'drop': wordDef(factor_drop, "( x -- )", "Removes element."), 
 		'nip': wordDef(factor_nip, "( x y -- y )", "Drops 2nd topmost value."),
 		'over': wordDef(factor_over, "( x y  -- x y x )", "Copies 2nd topmost element."), 
@@ -99,6 +103,8 @@ var JSFACTOR_NATIVE_WORDS = JSFACTOR_NATIVE_WORDS || function() {
 		'pressed': wordDef(factor_key_pressed, "( key -- ? )", "Whether given key has been pressed. Note: clears press history, so 'enter pressed enter pressed' will give t f or f f unless user presses enter after first pressed call. Supported keys are \"enter\" and \"esc\". WARNING: is in experimental stage. Works only in non-complex expressions."),
 		'random': wordDef(factor_random, "( n -- random )", "Gives a random value from [0, n)"),
 		'sin': wordDef(factor_sin, "( n -- [-1,1] )", "Javascript sin."),
+		'sqrt': wordDef(factor_sqrt, "( n -- n )", "Javascript sqrt (square root)."),
+		'pow': wordDef(factor_pow, "( n p -- n^p )", "Javascript pow (raise n to power p)."),
 		'cos': wordDef(factor_cos, "( n -- [-1,1] )", "Javascript cos."),
 		'$': wordDef(factor_jquery0, "( method selector -- ", "jQuery call, no arguments. Selector is jQuery selector expression as string, method is no-argument method."),
 		'$1': wordDef(factor_jquery1, "( value method selector -- ", "jQuery call with one argument."),
@@ -125,6 +131,17 @@ var JSFACTOR_NATIVE_WORDS = JSFACTOR_NATIVE_WORDS || function() {
 	function factor_sin() {
 		var num = asNumber(popValueFromStack());
 		pushToStack(Math.sin(num));
+	}
+
+	function factor_sqrt() {
+		var num = asNumber(popValueFromStack());
+		pushToStack(Math.sqrt(num));
+	}
+	
+    function factor_pow() {
+		var p = asNumber(popValueFromStack());
+		var num = asNumber(popValueFromStack());
+		pushToStack(Math.pow(num, p));
 	}
 
 	function factor_cos() {
@@ -406,7 +423,8 @@ var JSFACTOR_NATIVE_WORDS = JSFACTOR_NATIVE_WORDS || function() {
 	
 	function factor_clear() {
 		setStack([]);
-		getOutput().clear();
+		setReturnStack([]);
+        getOutput().clear();
 	}	
 
 	function factor_over() {
@@ -462,6 +480,16 @@ var JSFACTOR_NATIVE_WORDS = JSFACTOR_NATIVE_WORDS || function() {
 		var value = popFromStack(1)[0];
 		pushToStack(value);
 		pushToStack(value); // FIXME what about copy-semantics with closures?
+	}
+	
+	function factor_toreturn() {
+		var value = popFromStack(1)[0];
+		pushToReturnStack(value);
+	}
+	
+	function factor_fromreturn() {
+		var value = popFromReturnStack();
+		pushToStack(value);
 	}
 	
 	function factor_make_array() {
@@ -666,6 +694,10 @@ var JSFACTOR_NATIVE_WORDS = JSFACTOR_NATIVE_WORDS || function() {
 		//output(value);
 	}
 
+	function pushToReturnStack(value) {
+		getReturnStack().push(value);
+	}
+
 	function factor_equals() {
 		var x = popValueFromStack();
 		var y = popValueFromStack();
@@ -688,6 +720,16 @@ var JSFACTOR_NATIVE_WORDS = JSFACTOR_NATIVE_WORDS || function() {
 			var stack = getStack();
 			var length = stack.length;
 			return stack.splice(length - num, num);
+		}
+	}
+	
+	function popFromReturnStack() {
+		var stack = getReturnStack();
+		if(stack.length == 0) {
+			throw "stack underflow: not enough elements in return stack";
+		} else {
+			var length = stack.length;
+			return stack.splice(length - 1, 1)[0];
 		}
 	}
 	

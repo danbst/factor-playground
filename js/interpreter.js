@@ -4,6 +4,7 @@ function initializeInterpreter(output) {
 	var parser = JSFACTOR_PARSER;
 	
 	var stack = [];
+	var returnStack = [];
 	var user_words = {}
 	var symbols = {}
 	var dynamicValues = {} // from symbols to values
@@ -29,6 +30,10 @@ function initializeInterpreter(output) {
 		'popValueFromStack': function(value) { return stack.pop; },
 		'setStack': function(newStack){ stack = newStack; },
 		'getStack': getStack,
+		'pushValueToReturnStack': function(value) { returnStack.push(value); },
+		'popValueFromReturnStack': function(value) { return returnStack.pop; },
+		'setReturnStack': setReturnStack,
+		'getReturnStack': getReturnStack,
 		'getOutput': function(){ return output; },
 		'executeAll': executeAll,
 		'interpret': interpret,
@@ -77,6 +82,8 @@ function initializeInterpreter(output) {
 	
 	function getStack() { return stack; }
 	function setStack(newStack) { stack = newStack; }
+	function getReturnStack() { return returnStack; }
+	function setReturnStack(newStack) { returnStack = newStack; }
 	function getUserWords() { return user_words; }
 	
 	function createSimpleToken(elem) {

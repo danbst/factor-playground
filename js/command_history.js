@@ -5,7 +5,7 @@
 	var JSFACTOR_COMMAND_HISTORY = JSFACTOR_COMMAND_HISTORY || function() {
 		var history = [];
 		var position = 0;
-		var MAX_LENGTH = 10;
+		var MAX_LENGTH = 1000;
 		
 		function older() { if(--position < 0) position = 0; }
 		function newer() { if(++position >= history.length) position = history.length - 1; }

@@ -251,7 +251,8 @@ var JSFACTOR_PARSER = JSFACTOR_PARSER || function() {
 				var wordName = next.next;
 				var wordBody = parse(next.rest);				
 				
-				if(getEnvironment().isNum(wordName)) throw "Word name cannot be a number"; //FIXME check not num, t, f, string...
+                // TODO: commented because I want 0.5 to be a word
+				//if(getEnvironment().isNum(wordName)) throw "Word name cannot be a number"; //FIXME check not num, t, f, string...
 
 				getEnvironment().addWord(wordName, wordBody);
 				getEnvironment().getOutput().append("Added word: " + wordName + " " + getEnvironment().toString(wordBody));

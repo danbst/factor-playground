@@ -133,7 +133,7 @@ function initMain () {
 				var name = $(this).find('.word_name').text();
 				var definition = $(this).find('.word_definition').text();
 				result += ": " + name + " " + definition + " ;";
-				result += " ";
+				result += "\n";
 		});
 		
 		return $.trim(result);
@@ -514,6 +514,24 @@ function initMain () {
 		}
 	}
 	
+    function copy(text) {
+        var input = document.createElement('textarea');
+        input.innerHTML = text;
+        document.body.appendChild(input);
+        input.select();
+        var result = document.execCommand('copy');
+        document.body.removeChild(input);
+        return result;
+    }
+
+	function bindCopyClipboard() {
+		$('.copy_custom_words').click(function() {
+			var customwords = getCustomWordDefinitionsAsString();
+			copy(customwords);
+			showResult(':: custom words copied to clipboard ::');
+		});
+	}
+	
 	function bindSaveLocally() {
 		$('.save_custom_words').click(function() {
 			var customwords = getCustomWordDefinitionsAsString();
@@ -525,6 +543,7 @@ function initMain () {
 	// initialize everything
 	$(function() {
 		bindSaveLocally();
+        bindCopyClipboard();
 		
 		bindRemoveIntroduction();
 		bindRunExample();
