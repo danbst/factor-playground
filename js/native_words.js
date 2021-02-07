@@ -36,11 +36,11 @@ var JSFACTOR_NATIVE_WORDS = JSFACTOR_NATIVE_WORDS || function() {
   }
   
 	var categories = {
-		'shuffle': categoryDef(['dup', 'drop', '>r', 'r>', 'over', 'swap', 'nip'], "Shuffle words change the stack in trivial manners. They copy elements or move their relative places. Learn these first!"),
+		'shuffle': categoryDef(['dup', 'drop', '>r', 'r>', /*'over',*/ 'swap'/*, 'nip'*/], "Shuffle words change the stack in trivial manners. They copy elements or move their relative places. Learn these first!"),
 		'combinator (basic)': categoryDef(['while', 'until', 'if', 'if*', 'when', 'when*'], "Combinators are words that take quotations from stack and call them. These are basic combinatorics for conditional evaluation. While and until are not very idiomatic to Factor, though. Prefer advanced combinators instead."), 
 		'combinator (adv.)': categoryDef(['map', 'each', 'filter', 'keep', 'dip', 'compose', 'curry'], "Combinators that are a bit complex. Used for composing quotations together or with a sequence."),
 		'combinator (cleave)': categoryDef(['cleave', 'bi', '2bi', 'tri', 'bi@', 'bi*'], "Cleave combinators deal with multiplicity of quotations or elements. e.g. They apply different quotations to same object, or one quotation to many objects. Very handy for complex operations."), 
-		'math': categoryDef(['+', '-', '*', '/', '<', '>', '=', 'or', 'and', 'not', 'mod', 'sin', 'cos', 'sqrt', 'pow'], "Logical or arithmetic operations. NOTE: doesn't reflect the true number system of Factor yet!"),
+		'math': categoryDef(['+', '-', '*', '/', '<', '>', '=', 'or', 'and', 'not', 'mod', 'sin', /*'cos',*/ 'sqrt', 'pow'], "Logical or arithmetic operations. NOTE: doesn't reflect the true number system of Factor yet!"),
 		'sequence': categoryDef(['<array>', ',', 'at*', '>alist', 'assoc-size', 'reduce'], "Sequence operations for e.g. arrays "+ code("{ 1 2 3 }") + " and association lists " + codeline('H{ { 1 "foo" } { 2 "bar" } }') ),
 		'graph': categoryDef(['line', 'rect', 'color', 'canvas-clear'], "Very limited methods to draw on HTML5 canvas that is shown in the bottom of the screen. WARNING: is in experimental stage and is known to have problems but will be polished later. Turtles? Who knows."),
 		'misc': categoryDef(['clear', 'call', '.', 'get', 'set', 'sleep', 'pressed', 'random'], "Miscellaneous operations, mostly for interacting with the environment.")		
